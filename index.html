@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .chart-container { height: 300px; margin-bottom: 30px; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .auth-modal .nav-link { color: #495057; }
+        .auth-modal .nav-link.active { color: #0d6efd; font-weight: bold; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; }
+        .content-wrapper { display: none; }
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1rem 0;
+            color: #6c757d;
+        }
+        .auth-divider::before, .auth-divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .auth-divider::before {
+            margin-right: 1rem;
+        }
+        .auth-divider::after {
+            margin-left: 1rem;
+        }
+        .demo-credentials {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Modal (shown by default) -->
+    <div class="modal fade show" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-modal="true" role="dialog" style="display: block;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="authModalLabel">Welcome to Inventory Predictor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="demo-credentials">
+                        <strong>Demo Credentials:</strong><br>
+                        Email: demo@inventory.com<br>
+                        Password: demo123
+                    </div>
+                    
+                    <ul class="nav nav-tabs nav-justified mb-4" id="authTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">Login</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button" role="tab">Sign Up</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="authTabsContent">
+                        <!-- Login Tab -->
+                        <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label for="loginEmail" class="form-label">Email address</label>
+                                    <input type="email" class="form-control" id="loginEmail" value="demo@inventory.com" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="loginPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="loginPassword" value="demo123" required>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Login</button>
+                            </form>
+                            
+                            <div class="auth-divider">or</div>
+                            
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary" type="button">
+                                    <i class="bi bi-google"></i> Continue with Google
+                                </button>
+                                <button class="btn btn-outline-dark" type="button">
+                                    <i class="bi bi-github"></i> Continue with GitHub
+                                </button>
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <a href="#" class="text-decoration-none">Forgot password?</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Signup Tab -->
+                        <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signup-tab">
+                            <form id="signupForm">
+                                <div class="mb-3">
+                                    <label for="signupName" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="signupName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="signupEmail" class="form-label">Email address</label>
+                                    <input type="email" class="form-control" id="signupEmail" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="signupPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="signupPassword" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                    <input type="password" class="form-control" id="confirmPassword" required>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                                    <label class="form-check-label" for="agreeTerms">I agree to the <a href="#">Terms of Service</a></label>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Create Account</button>
+                            </form>
+                            
+                            <div class="auth-divider">or</div>
+                            
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary" type="button">
+                                    <i class="bi bi-google"></i> Continue with Google
+                                </button>
+                                <button class="btn btn-outline-dark" type="button">
+                                    <i class="bi bi-github"></i> Continue with GitHub
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content (hidden until login) -->
+    <div class="content-wrapper" id="mainContent">
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="#">📊 Inventory Predictor</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Reports</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center">
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown">
+                                <img src="https://via.placeholder.com/40" alt="User" class="user-avatar me-2">
+                                <span id="usernameDisplay">Demo User</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profile</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-2"></i> Sign out</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Page Content -->
+        <div class="container py-4">
+            <h1 class="text-center mb-4">📊 Predictive Inventory Management</h1>
+            
+            <div class="row">
+                <!-- Prediction Form -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5>Demand Forecast</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="predictionForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Product</label>
+                                    <select class="form-select" id="productSelect">
+                                        {% for product in products %}
+                                        <option value="{{ product }}">{{ product }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Year</label>
+                                    <input type="number" class="form-control" id="yearInput" min="2024" value="2024">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Predict Demand</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Prediction Results -->
+                    <div class="card mt-4">
+                        <div class="card-header bg-success text-white">
+                            <h5>Predicted Demand</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="predictionChart"></canvas>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Month</th>
+                                            <th>Predicted Sales</th>
+                                            <th>Suggested Order</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="predictionTable">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Historical Data -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5>Historical Sales</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="historyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize Charts
+        const historyCtx = document.getElementById('historyChart')?.getContext('2d');
+        const predictionCtx = document.getElementById('predictionChart')?.getContext('2d');
+        let historyChart, predictionChart;
+        
+        // Auth Modal
+        const authModal = new bootstrap.Modal(document.getElementById('authModal'), { backdrop: 'static', keyboard: false });
+        authModal.show();
+        
+        // Login Form Submission
+        document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Simple validation (in a real app, you would verify against your backend)
+            if (email === 'demo@inventory.com' && password === 'demo123') {
+                // Hide auth modal and show main content
+                authModal.hide();
+                document.getElementById('mainContent').style.display = 'block';
+                
+                // Initialize charts if they exist
+                if (historyCtx) {
+                    updateHistoryChart(document.getElementById('productSelect').value);
+                }
+            } else {
+                alert('Invalid credentials. Use the demo credentials provided.');
+            }
+        });
+        
+        // Logout Button
+        document.getElementById('logoutBtn')?.addEventListener('click', function() {
+            document.getElementById('mainContent').style.display = 'none';
+            authModal.show();
+        });
+        
+        // Product change handler
+        document.getElementById('productSelect')?.addEventListener('change', function() {
+            updateHistoryChart(this.value);
+        });
+        
+        // Form submission
+        document.getElementById('predictionForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const product = document.getElementById('productSelect').value;
+            const year = document.getElementById('yearInput').value;
+            
+            // Simulate API call
+            setTimeout(() => {
+                const mockPredictions = Array.from({length: 12}, (_, i) => ({
+                    month: i + 1,
+                    predicted_sales: Math.floor(Math.random() * 500) + 100,
+                    suggested_order: Math.floor(Math.random() * 600) + 100
+                }));
+                updatePredictions(mockPredictions);
+            }, 800);
+        });
+        
+        // Update history chart
+        function updateHistoryChart(product) {
+            // Simulate API call with mock data
+            setTimeout(() => {
+                const months = 12;
+                const mockData = {
+                    dates: Array.from({length: months}, (_, i) => '${i+1}/2023'),
+                    sales: Array.from({length: months}, () => Math.floor(Math.random() * 400) + 50)
+                };
+                
+                if (historyChart) historyChart.destroy();
+                
+                historyChart = new Chart(historyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: mockData.dates,
+                        datasets: [{
+                            label: 'Sales',
+                            data: mockData.sales,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            tension: 0.1
+                        }]
+                    }
+                });
+            }, 500);
+        }
+        
+        // Update prediction results
+        function updatePredictions(predictions) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            // Update chart
+            if (predictionChart) predictionChart.destroy();
+            predictionChart = new Chart(predictionCtx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Predicted Demand',
+                        data: predictions.map(p => p.predicted_sales),
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                    }]
+                }
+            });
+            
+            // Update table
+            const tableBody = document.getElementById('predictionTable');
+            tableBody.innerHTML = predictions.map(p => `
+                <tr>
+                    <td>${months[p.month - 1]}</td>
+                    <td>${p.predicted_sales}</td>
+                    <td>${p.suggested_order}</td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
